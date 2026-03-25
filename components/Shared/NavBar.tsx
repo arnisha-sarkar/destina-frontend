@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation"; // useRouter ব্যবহার করা ভালো
+import { usePathname, useRouter } from "next/navigation";
 import {
   Menu,
   X,
@@ -21,36 +21,40 @@ interface NavRoute {
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [mounted, setMounted] = useState(false); // Hydration error ফিক্স করার জন্য
   const pathname = usePathname();
   const router = useRouter();
 
-  // ১. চেক করবে ইউজার লগইন কি না
+  // ১. ইউজার লগইন কি না তা রিয়েল-টাইমে চেক করার ফাংশন
   useEffect(() => {
-    const authStatus = localStorage.getItem("isLoggedIn");
-    if (authStatus === "true") {
-      setIsLoggedIn(true);
-    }
+    setMounted(true); // ক্লায়েন্ট সাইডে মাউন্ট হয়েছে কি না নিশ্চিত করা
+
+    const checkAuth = () => {
+      const authStatus = localStorage.getItem("isLoggedIn");
+      setIsLoggedIn(authStatus === "true");
+    };
+
+    // শুরুতে একবার চেক করবে
+    checkAuth();
+
+    // স্টোরেজ বা কাস্টম ইভেন্ট চেঞ্জ হলে আপডেট হবে
+    window.addEventListener("storage", checkAuth);
+    window.addEventListener("authChange", checkAuth);
+
+    return () => {
+      window.removeEventListener("storage", checkAuth);
+      window.removeEventListener("authChange", checkAuth);
+    };
   }, []);
 
-  // ২. লগআউট হ্যান্ডেলার (এখানেই ম্যাজিক হবে)
+  // ২. লগআউট হ্যান্ডেলার
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-
-    console.log("Logging out...");
-
-    // ক. সাথে সাথে স্টেট ফলস করা (এতে বাটন তখনি বদলে যাবে)
-    setIsLoggedIn(false);
-
-    // খ. লোকাল স্টোরেজ থেকে ডাটা মোছা
     localStorage.removeItem("isLoggedIn");
-
-    // গ. মোবাইল মেনু বন্ধ করা
+    setIsLoggedIn(false); // সাথে সাথে স্টেট পরিবর্তন
     setIsOpen(false);
-
-    // ঘ. হোম পেজে পাঠিয়ে দেওয়া
     router.push("/");
-    router.refresh(); // নেক্সট জেএস পেজকে রিফ্রেশ করবে
+    router.refresh();
   };
 
   const publicRoutes: NavRoute[] = [
@@ -68,6 +72,9 @@ const Navbar: React.FC = () => {
   const allRoutes = isLoggedIn
     ? [...publicRoutes, ...privateRoutes]
     : publicRoutes;
+
+  // নেক্সট জেএস-এ সার্ভার সাইড এরর এড়াতে মাউন্ট না হওয়া পর্যন্ত কিছু দেখাবে না
+  if (!mounted) return null;
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
@@ -103,10 +110,9 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
-          {/* User Button Section (Conditional Rendering) */}
+          {/* User Button Section (Desktop) */}
           <div className="hidden md:flex items-center space-x-4">
             {isLoggedIn ? (
-              /* অ্যাকাউন্ট বাটন (লগইন থাকলে) */
               <div className="relative group">
                 <button className="flex items-center gap-2 p-1 pr-3 rounded-full bg-gray-50 border hover:bg-gray-100 transition shadow-sm cursor-pointer">
                   <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-inner">
@@ -118,11 +124,13 @@ const Navbar: React.FC = () => {
                   <ChevronDown size={14} className="text-gray-400" />
                 </button>
 
-                {/* প্রোফাইল ড্রপডাউন */}
+                {/* Dropdown */}
                 <div className="absolute right-0 mt-0 w-52 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                   <div className="bg-white border border-gray-100 rounded-2xl shadow-2xl py-2 overflow-hidden">
                     <div className="px-4 py-2 border-b mb-1">
-                      <p className="text-xs text-gray-400">Welcome!</p>
+                      <p className="text-xs text-gray-400 uppercase font-black">
+                        Welcome!
+                      </p>
                       <p className="text-sm font-bold text-gray-800">
                         Arnisha Sarkar
                       </p>
@@ -145,11 +153,9 @@ const Navbar: React.FC = () => {
 
                     <hr className="my-1 border-gray-100" />
 
-                    {/* ডেস্কটপ লগআউট বাটন */}
                     <button
-                      type="button"
-                      onClick={(e) => handleLogout(e)}
-                      className="w-full text-left flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer font-medium"
+                      onClick={handleLogout}
+                      className="w-full text-left flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer font-bold"
                     >
                       <LogOut size={16} /> Logout
                     </button>
@@ -157,7 +163,6 @@ const Navbar: React.FC = () => {
                 </div>
               </div>
             ) : (
-              /* লগইন বাটন (লগআউট থাকলে এটি ফিরে আসবে) */
               <Link
                 href="/register"
                 className="bg-blue-600 text-white px-7 py-2.5 rounded-full text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
@@ -179,7 +184,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer (এখানেও লগআউট বাটন আছে) */}
+      {/* Mobile Drawer */}
       <div
         className={`fixed inset-0 bg-black/40 z-40 md:hidden transition-all duration-300 ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
         onClick={() => setIsOpen(false)}
@@ -218,9 +223,8 @@ const Navbar: React.FC = () => {
                 >
                   <LayoutDashboard size={20} /> Dashboard
                 </Link>
-                {/* মোবাইল লগআউট বাটন */}
                 <button
-                  onClick={(e) => handleLogout(e)}
+                  onClick={handleLogout}
                   className="w-full flex items-center gap-3 p-3 text-red-600 font-bold cursor-pointer hover:bg-red-50 rounded-xl transition"
                 >
                   <LogOut size={20} /> Logout
