@@ -27,7 +27,7 @@ const HomePage = () => {
       <Testimonials />
       <FAQ />
       <CTA />
-      <ItemCard item={sampleItem} />
+      {/* <ItemCard item={sampleItem} /> */}
     </div>
   );
 };

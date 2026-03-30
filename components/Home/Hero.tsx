@@ -107,6 +107,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown, MapPin, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 const HeroSection = () => {
   return (
@@ -154,14 +155,14 @@ const HeroSection = () => {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-5 mt-4">
             <Button className="bg-blue-600 hover:bg-blue-700 text-white h-14 px-10 rounded-2xl font-bold transition-all shadow-xl shadow-blue-600/20 group text-lg">
-              Get Started
+              <Link href="/register">Get Started</Link>
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button
               variant="outline"
               className="bg-white/5 border-white/20 text-white hover:bg-white/10 h-14 px-10 rounded-2xl backdrop-blur-md text-lg"
             >
-              View Destinations
+              <Link href="/destinations">View Destinations</Link>
             </Button>
           </div>
         </motion.div>

@@ -29,39 +29,68 @@ const FAQ = () => {
   };
 
   return (
-    <div className="py-24 bg-white">
+    // মেইন ব্যাকগ্রাউন্ড পরিবর্তন করা হয়েছে যাতে লাইট মোডে টেক্সট ফুটে ওঠে
+    <div className="py-24 bg-white dark:bg-[#0D1117] transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 flex flex-col items-center">
-          <HelpCircle className="w-16 h-16 text-blue-100 mb-6" />
-          <h2 className="text-4xl font-extrabold text-gray-900">
+          {/* আইকন কালার একটু ডিপ করা হয়েছে লাইট মোডের জন্য */}
+          <HelpCircle className="w-16 h-16 text-blue-500/20 dark:text-blue-400/20 mb-6" />
+
+          <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white">
             Frequently Asked Questions
           </h2>
-          <p className="text-xl text-gray-600 mt-4">
+
+          {/* এই প্যারাগ্রাফটি লাইট মোডে ঝাপসা লাগছিল, এখন ঠিক করা হয়েছে */}
+          <p className="text-lg text-gray-600 dark:text-gray-400 mt-4 max-w-2xl">
             Got questions? We've got answers. If you can't find what you are
             looking for, contact us.
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden"
+              // কার্ডের ব্যাকগ্রাউন্ড এবং বর্ডার লাইট মোডে ক্লিয়ার করা হয়েছে
+              className={`rounded-2xl border transition-all duration-300 ${
+                openIndex === index
+                  ? "bg-blue-50/50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/30"
+                  : "bg-gray-50 dark:bg-[#161B22] border-gray-100 dark:border-white/5"
+              }`}
             >
               <button
                 onClick={() => toggleForm(index)}
-                className="w-full p-6 text-left flex items-center justify-between font-semibold text-gray-900 text-lg"
+                // প্রশ্নের টেক্সট কালার লাইট মোডে text-gray-900 এবং ডার্কে white রাখা হয়েছে
+                className="w-full p-6 text-left flex items-center justify-between font-bold text-gray-900 dark:text-gray-100 text-lg group"
               >
-                {faq.q}
+                <span
+                  className={
+                    openIndex === index
+                      ? "text-blue-600 dark:text-blue-400"
+                      : ""
+                  }
+                >
+                  {faq.q}
+                </span>
                 {openIndex === index ? (
-                  <ChevronUp size={20} className="text-blue-600" />
+                  <ChevronUp
+                    size={20}
+                    className="text-blue-600 dark:text-blue-400"
+                  />
                 ) : (
-                  <ChevronDown size={20} className="text-gray-400" />
+                  <ChevronDown
+                    size={20}
+                    className="text-gray-400 group-hover:text-gray-600"
+                  />
                 )}
               </button>
+
+              {/* উত্তর বা আনসার এরিয়া */}
               {openIndex === index && (
-                <div className="px-6 pb-6 text-gray-700 leading-relaxed border-t border-gray-100 pt-4">
-                  {faq.a}
+                <div className="px-6 pb-6 text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                  <div className="pt-4 border-t border-gray-100 dark:border-white/5">
+                    {faq.a}
+                  </div>
                 </div>
               )}
             </div>

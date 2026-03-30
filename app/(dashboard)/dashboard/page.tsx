@@ -1,7 +1,6 @@
-import React from "react";
+import { redirect } from "next/navigation";
 
-const page = () => {
-  return <div>this is dashboard</div>;
-};
-
-export default page;
+export default function DashboardPage() {
+  // ইউজার এখানে আসা মাত্রই তাকে অ্যানালিটিক্স পেজে পাঠিয়ে দেবে
+  redirect("dashboard/admin/analytics");
+}

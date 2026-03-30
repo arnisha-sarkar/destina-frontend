@@ -38,6 +38,11 @@ const Sidebar = () => {
       icon: LayoutDashboard,
     },
     {
+      title: "Add Package Form",
+      path: "/dashboard/admin/add-package",
+      icon: LayoutDashboard,
+    },
+    {
       title: "Manage Users",
       path: "/dashboard/admin/manage-users",
       icon: Users,
