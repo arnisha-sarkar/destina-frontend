@@ -24,7 +24,9 @@ const ManageUsersPage = () => {
       try {
         setLoading(true);
         // এখানে আপনার অ্যাডমিন এপিআই কল হবে: GET /api/v1/admin/users
-        const response = await axios.get("http://localhost:5000/api/v1/users/");
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/`,
+        );
         setUsers(response.data.data || []);
       } catch (error) {
         console.error("Error fetching users:", error);
